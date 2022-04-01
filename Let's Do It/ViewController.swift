@@ -7,7 +7,7 @@
 
 import UIKit
 
-class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class ViewController: UIViewController {
     
     
     @IBOutlet var tableView: UITableView!
@@ -33,6 +33,8 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     func updateTasks() {
         
+        tasks.removeAll()
+        
         guard let count = UserDefaults().value(forKey: "count") as? Int else {
             return
         }
@@ -42,6 +44,7 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
                 tasks.append(task)
             }
         }
+        tableView.reloadData()
     }
     
     @IBAction func didTapAdd() {
@@ -55,6 +58,23 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         navigationController?.pushViewController(vc, animated: true)
     }
     
+}
+
+extension ViewController: UITableViewDelegate {
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        
+        let vc = storyboard?.instantiateViewController(withIdentifier: "task") as! TaskViewController
+        vc.title = "New task"
+        vc.task = tasks[indexPath.row]
+        navigationController?.pushViewController(vc, animated: true)
+        
+    }
+}
+
+extension ViewController: UITableViewDataSource {
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return tasks.count
     }
@@ -63,10 +83,6 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
         let cell = tableView.dequeueReusableCell(withIdentifier: "cell", for: indexPath)
         cell.textLabel?.text = tasks[indexPath.row]
         return cell
-    }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
     }
 }
 
